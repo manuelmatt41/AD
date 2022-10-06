@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -8,6 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -109,11 +111,66 @@ public class App {
         }
     }
 
+    public static void showMaxDirectors(Document domTree, int numberOfDirectors) {
+        NodeList films = domTree.getElementsByTagName("pelicula");
+        NodeList directors;
+        NodeList auxList;
+        Node aux;
+        for (int i = 0; i < films.getLength(); i++) {
+            directors = ((Element) films.item(i)).getElementsByTagName("director");
+            if (directors.getLength() == numberOfDirectors) {
+                for (int j = 0; j < directors.getLength(); j++) {
+                    auxList = directors.item(j).getChildNodes();
+                    for (int k = 0; k < auxList.getLength(); k++) {
+                        aux = auxList.item(k);
+                        if (aux.getNodeType() == Node.ELEMENT_NODE) {
+                            if (aux.getNodeName().equals("nombre")) {
+                                System.out.print("Director -> ");
+                                System.out.printf("%s ", aux.getFirstChild().getNodeValue());
+                            }
+                            if (aux.getNodeName().equals("apellido")) {
+                                System.out.printf("%s\n", aux.getFirstChild().getNodeValue());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static void showGender(Document domTree) {
+        NodeList films = domTree.getElementsByTagName("pelicula");
+        Node film;
+        Node atrib;
+        NamedNodeMap atribs;
+        ArrayList<String> differentGenders = new ArrayList<>();
+        for (int i = 0; i < films.getLength(); i++) {
+            film = films.item(i);
+            if (film.hasAttributes()) {
+                atribs = film.getAttributes();
+                for (int j = 0; j < atribs.getLength(); j++) {
+                   atrib = atribs.item(j);
+                   if (atrib.getNodeName().equals("genero")) {
+                       System.out.printf("El atributo %s es %s\n", atrib.getNodeName(), atrib.getNodeValue());
+                       if (!differentGenders.contains(atrib.getNodeValue())) {
+                            differentGenders.add(atrib.getNodeValue());
+                       }
+                   }
+                }
+            }
+        }
+        System.out.printf("Hay un total de %d generos distintos", differentGenders.size());
+    }
+
     public static void main(String[] args) {
+        // long startTime = System.currentTimeMillis();
+        // long endTime;
         Document doc = createDomTree(filmFile);
-        showDocument(doc.getFirstChild(), 4);
+        // endTime = System.currentTimeMillis() - startTime;
+        // System.out.println(endTime);
+        showGender(doc);
     }
 
     public static File filmFile = new File(
-            System.getProperty("user.home") + "\\Documents\\Acceso a datos\\Boletin2\\Peliculas.xml");
+            System.getProperty("user.home") + "\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml");
 }
