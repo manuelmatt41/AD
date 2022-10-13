@@ -15,8 +15,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class App {
-
-    public static Document createDomTree(File file) {
+    // Ejercicio 1
+    public Document createDomTree(File file) {
         Document doc = null;
 
         try {
@@ -36,7 +36,8 @@ public class App {
         return doc;
     }
 
-    public static void showFilms(Document domTree) {
+    // Ejercicio 3
+    public void showFilms(Document domTree) {
         NodeList filmList = domTree.getElementsByTagName("pelicula");
         NodeList directorNodeList;
         NodeList titleList;
@@ -73,7 +74,8 @@ public class App {
 
     }
 
-    public static boolean showFilmsTittles(Document domTree) {
+    // Ejercicio 2
+    public boolean showFilmsTittles(Document domTree) {
         NodeList nodeList = domTree.getElementsByTagName("titulo");
         Node node;
 
@@ -89,7 +91,8 @@ public class App {
 
     }
 
-    public static void showDocument(Node node, int tabulaciones) {
+    // Ejercicio 4
+    public void showDocument(Node node, int tabulaciones) {
         if (node == null) {
             return;
         }
@@ -99,7 +102,6 @@ public class App {
                 continue;
             }
             System.out.print(" ");
-
         }
         System.out.println(node.getNodeName());
         if (node.hasChildNodes()) {
@@ -111,7 +113,8 @@ public class App {
         }
     }
 
-    public static void showMaxDirectors(Document domTree, int numberOfDirectors) {
+    // Ejercicio 5
+    public void showMaxDirectors(Document domTree, int numberOfDirectors) {
         NodeList films = domTree.getElementsByTagName("pelicula");
         NodeList directors;
         NodeList auxList;
@@ -138,7 +141,8 @@ public class App {
         }
     }
 
-    public static void showGender(Document domTree) {
+    // Ejercicio 6
+    public void showGender(Document domTree) {
         NodeList films = domTree.getElementsByTagName("pelicula");
         Node film;
         Node atrib;
@@ -149,28 +153,52 @@ public class App {
             if (film.hasAttributes()) {
                 atribs = film.getAttributes();
                 for (int j = 0; j < atribs.getLength(); j++) {
-                   atrib = atribs.item(j);
-                   if (atrib.getNodeName().equals("genero")) {
-                       System.out.printf("El atributo %s es %s\n", atrib.getNodeName(), atrib.getNodeValue());
-                       if (!differentGenders.contains(atrib.getNodeValue())) {
+                    atrib = atribs.item(j);
+                    if (atrib.getNodeName().equals("genero")) {
+                        System.out.printf("El atributo %s es %s\n", atrib.getNodeName(), atrib.getNodeValue());
+                        if (!differentGenders.contains(atrib.getNodeValue())) {
                             differentGenders.add(atrib.getNodeValue());
-                       }
-                   }
+                        }
+                    }
                 }
             }
         }
         System.out.printf("Hay un total de %d generos distintos", differentGenders.size());
     }
 
+    //Ejercicio 7
+    public void addAtrib(Document domTree, String title, String atribName, String atribValue) {
+        NodeList film = domTree.getElementsByTagName("titulo");
+        Node titleNode;
+        NamedNodeMap atribs;
+        for (int i = 0; i < film.getLength(); i++) {
+            titleNode = film.item(i);
+            if (titleNode.getNodeType() == Node.ELEMENT_NODE) {
+                if (titleNode.getFirstChild().getNodeValue().equals(title)) {
+                    if (titleNode.hasAttributes()) {
+                        atribs = titleNode.getAttributes();
+                        for (int j = 0; j < atribs.getLength(); j++) {
+                            if (atribs.item(j).getNodeName().equals(atribName)) {
+                                ((Element)titleNode).setAttribute(atribName, atribValue);
+                            }
+                        }
+                    } else {
+                        ((Element)titleNode).setAttribute(atribName, atribValue);
+                    }
+                }
+            }
+        }
+    }
     public static void main(String[] args) {
+        App app = new App();
         // long startTime = System.currentTimeMillis();
         // long endTime;
-        Document doc = createDomTree(filmFile);
+        Document doc = app.createDomTree(filmFile);
         // endTime = System.currentTimeMillis() - startTime;
         // System.out.println(endTime);
-        showGender(doc);
+        app.addAtrib(doc, "Dune", "doc", "aa");
     }
 
     public static File filmFile = new File(
-            System.getProperty("user.home") + "\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml");
+            System.getProperty("user.home") + "\\Documents\\AD\\Boletin2\\Peliculas.xml");
 }

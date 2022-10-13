@@ -348,7 +348,7 @@ public class App {
                 }
             } catch (IOException e) {
                 System.err.println(e.getMessage());
-            }
+            }0
         } catch (FileNotFoundException e) {
             System.err.println(e.getMessage());
         } catch (IOException e) {
