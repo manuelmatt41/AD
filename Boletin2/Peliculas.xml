@@ -6,6 +6,10 @@
             <nombre>David</nombre>
             <apellido>Lynch</apellido>
         </director>
+        <director>
+            <nombre>Alfredo</nombre>
+            <apellido>Landa</apellido>
+        </director>
     </pelicula>
     <pelicula año="2001" genero="Fantasia" idioma="es">
         <titulo>El Señor de los Anillos</titulo>
@@ -21,7 +25,7 @@
             <apellido>Wachowski</apellido>
         </director>
         <director>
-            <nombre>Larry</nombre>
+            <nombre>Lana</nombre>
             <apellido>Wachowski</apellido>
         </director>
     </pelicula>

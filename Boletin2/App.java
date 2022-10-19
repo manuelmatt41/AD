@@ -175,7 +175,7 @@ public class App {
     // Ejercicio 7
     public void addAtribToTitle(Document domTree, String title, String atribName, String atribValue) {
         NodeList films = domTree.getElementsByTagName("titulo");
-        Node film = getElement(films, title);
+        Node film = getNode(films, title);
         if (film != null) {
             ((Element) film).setAttribute(atribName, atribValue);
             grabarDOM(domTree, "C:\\Users\\Manue\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml");
@@ -184,14 +184,14 @@ public class App {
 
     public void removeAtribToTitle(Document domTree, String title, String atribname) {
         NodeList films = domTree.getElementsByTagName("titulo");
-        Node film = getElement(films, title);
+        Node film = getNode(films, title);
         if (film != null) {
             ((Element) film).removeAttribute(atribname);
             grabarDOM(domTree, "C:\\Users\\Manue\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml");
         }
     }
 
-    public Node getElement(NodeList nodeList, String value) {
+    public Node getNode(NodeList nodeList, String value) {
         Node node;
         for (int i = 0; i < nodeList.getLength(); i++) {
             node = nodeList.item(i);
@@ -201,6 +201,13 @@ public class App {
         }
         return null;
     }
+
+    // public Node searchFilm(Document domTree, String mainValue) {
+    //     NodeList films = domTree.getElementsByTagName("pelicula");
+    //     for (int i = 0; i < array.length; i++) {
+    //         mainValue
+    //     }
+    // }
 
     public void grabarDOM(Document document, String ficheroSalida) {
         DOMImplementationRegistry registry = null;
@@ -222,7 +229,8 @@ public class App {
         serializer.getDomConfig().setParameter("format-pretty-print", true);
         serializer.write(document, output);
     }
-    //Ejercicio 8
+
+    // Ejercicio 8
     /**
      * Crea y añade al elemento raiz del XML un nodo "pelicula"
      * 
@@ -324,6 +332,41 @@ public class App {
         return eFilm;
     }
 
+    public void changeDirector(Document domTree, String oldName, String newName, String oldSurname, String newSurname) {
+        Node name = getNode(domTree.getElementsByTagName("nombre"), oldName);
+        Node surname = getNode(domTree.getElementsByTagName("apellido"), oldSurname);
+        if (name == null || surname == null) {
+            return;
+        }
+        if (surname.getFirstChild().getNodeValue().equals(oldSurname)) {
+            name.getFirstChild().setNodeValue(newName);
+            if (!newSurname.equals("")) {
+                surname.getFirstChild().setNodeValue(newSurname);
+            }
+        }
+        grabarDOM(domTree, System.getProperty("user.home") + "\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml");
+    }
+
+    public void changeDirectorName(Document domTree, String oldName, String newName, String surname) {
+        changeDirector(domTree, oldName, newName, surname, "");
+    }
+
+    public void addDirector(Document domTree, Node director, Node film) {
+        film.appendChild(director);
+        grabarDOM(domTree, filmFile.getAbsolutePath());
+    }
+
+    public Node createDirector(Document domTree, String name, String surname) {
+        Element director = domTree.createElement("director");
+        Element nameE = domTree.createElement("nombre");
+        Element surnameE = domTree.createElement("apellido");
+        nameE.appendChild(domTree.createTextNode(name));
+        surnameE.appendChild(domTree.createTextNode(surname));
+        director.appendChild(nameE);
+        director.appendChild(surnameE);
+        return director;
+    }
+
     public static void main(String[] args) {
         App app = new App();
         Document doc = app.createDomTree(filmFile);
@@ -335,6 +378,8 @@ public class App {
         // String[] values = { "1987", "accion", "en" };
         // app.addFilm(doc, "Depredador", "Jhon", "Tiernan", names, values,
         // new File("C:\\Users\\Manue\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml"));
+        app.addDirector(doc, app.createDirector(doc, "Alfredo", "Landa"),
+                app.getNode(doc.getElementsByTagName("titulo"), "Dune").getParentNode());
     }
 
     public static File filmFile = new File(
