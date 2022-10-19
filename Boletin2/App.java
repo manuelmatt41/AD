@@ -173,39 +173,30 @@ public class App {
     }
 
     // Ejercicio 7
-    public void addAtrib(Document domTree, String title, String atribName, String atribValue) {
+    public void addAtribToTitle(Document domTree, String title, String atribName, String atribValue) {
         NodeList films = domTree.getElementsByTagName("titulo");
-        Node film = getElement(films, title, false);
-        NamedNodeMap atribs = film.getAttributes();
-        if (atribs != null) {
-            for (int j = 0; j < atribs.getLength(); j++) {
-                if (atribs.item(j).getNodeName().equals(atribName)) {
-                    System.out.println(atribs.item(j).getParentNode());
-                    ((Element) film).setAttribute(atribName, atribValue);
-                }
-            }
-        }
-        grabarDOM(domTree, "C:\\Users\\Manuel Marín\\Documents\\AD\\Boletin2\\Peliculas.xml");
-    }
-
-    public void removeAtrib(Document domTree, String title, String atribname) {
-        NodeList films = domTree.getElementsByTagName("titulo");
-        NamedNodeMap atribs = getElement(films, "Dune", false).getAttributes();
-        if (atribs != null) {
-
+        Node film = getElement(films, title);
+        if (film != null) {
+            ((Element) film).setAttribute(atribName, atribValue);
+            grabarDOM(domTree, "C:\\Users\\Manue\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml");
         }
     }
 
-    public Node getElement(NodeList nodeList, String value, boolean hasAttributes) {
+    public void removeAtribToTitle(Document domTree, String title, String atribname) {
+        NodeList films = domTree.getElementsByTagName("titulo");
+        Node film = getElement(films, title);
+        if (film != null) {
+            ((Element) film).removeAttribute(atribname);
+            grabarDOM(domTree, "C:\\Users\\Manue\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml");
+        }
+    }
+
+    public Node getElement(NodeList nodeList, String value) {
         Node node;
         for (int i = 0; i < nodeList.getLength(); i++) {
             node = nodeList.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE && node.getFirstChild().getNodeValue().equals(value)) {
-                if (hasAttributes) {
-                    return node.hasAttributes() ? node : null;
-                } else {
-                    return node;
-                }
+                return node;
             }
         }
         return null;
@@ -231,17 +222,121 @@ public class App {
         serializer.getDomConfig().setParameter("format-pretty-print", true);
         serializer.write(document, output);
     }
+    //Ejercicio 8
+    /**
+     * Crea y añade al elemento raiz del XML un nodo "pelicula"
+     * 
+     * @param domTree Arbols DOM
+     * @return Devuelve el nodo "pelicula", si no contiene
+     *         ningun nodo raiz devuelve null
+     */
+    public Element addFilm(Document domTree) {
+        return (Element) domTree.getFirstChild().appendChild(domTree.createElement("pelicula"));
+    }
+
+    /**
+     * Crea y añade al elemento raiz del XML un nodo "pelicula", y a este mismo un
+     * nodo titulo con su respectivo valor.
+     * 
+     * @param domTree Arbol DOM
+     * @param title   Valor del nodo titulo
+     * @return Devuelve el nodo "pelicula", si no contiene
+     *         ningun nodo raiz devuelve null
+     */
+    public Element addFilm(Document domTree, String title) {
+        Element eFilm = addFilm(domTree);
+        Element eTitle = domTree.createElement("titulo");
+        eTitle.appendChild(domTree.createTextNode(title));
+        eFilm.appendChild(eTitle);
+        return eFilm;
+    }
+
+    /**
+     * Crea y añade al elemento raiz del XML un nodo "pelicula", y a este mismo los
+     * nodos "titulo" y "director" con sus respectivos valores
+     * 
+     * @param domTree         Arbol DOM
+     * @param title           Valor del nodo titulo
+     * @param directorName    Valor del nodo "nombre" de "director"
+     * @param directorSurname Valor del nodo "apellido" de "director"
+     * @return Devuelve el nodo "pelicula", si no contiene
+     *         ningun nodo raiz devuelve null
+     */
+    public Element addFilm(Document domTree, String title, String directorName, String directorSurname) {
+        Element eFilm = addFilm(domTree, title);
+        Element eDirector = domTree.createElement("director");
+        Element eDirectorName = domTree.createElement("nombre");
+        Element eDirectorSurname = domTree.createElement("apellido");
+        eDirectorName.appendChild(domTree.createTextNode(directorName));
+        eDirectorSurname.appendChild(domTree.createTextNode(directorSurname));
+        eDirector.appendChild(eDirectorName);
+        eDirector.appendChild(eDirectorSurname);
+        eFilm.appendChild(eDirector);
+        return eFilm;
+    }
+
+    /**
+     * Crea y añade al elemento raiz del XML un nodo "pelicula", y a este mismo los
+     * nodos "titulo" y "director" con sus respectivos valores. Y añade al nodo
+     * "pelicula" los atributos correspondientes
+     * 
+     * @param domTree         Arbol DOM
+     * @param title           Valor del nodo titulo
+     * @param directorName    Valor del nodo "nombre" de "director"
+     * @param directorSurname Valor del nodo "apellido" de "director"
+     * @param atribsNames     Nombre de los atributos
+     * @param atribsValues    Valor de los atributos
+     * @return Devuelve el nodo "pelicula", si no contiene
+     *         ningun nodo raiz devuelve null
+     */
+    public Element addFilm(Document domTree, String title, String directorName, String directorSurname,
+            String[] atribsNames, String[] atribsValues) {
+        if (atribsNames.length != atribsValues.length) {
+            return null;
+        }
+        Element eFilm = addFilm(domTree, title, directorName, directorSurname);
+        for (int i = 0; i < atribsNames.length; i++) {
+            eFilm.setAttribute(atribsNames[i], atribsValues[i]);
+        }
+        return eFilm;
+    }
+
+    /**
+     * Crea y añade al elemento raiz del XML un nodo "pelicula", y a este mismo los
+     * nodos "titulo" y "director" con sus respectivos valores. Y añade al nodo
+     * "pelicula" los atributos correspondientes
+     * 
+     * @param domTree         Arbol DOM
+     * @param title           Valor del nodo titulo
+     * @param directorName    Valor del nodo "nombre" de "director"
+     * @param directorSurname Valor del nodo "apellido" de "director"
+     * @param atribsNames     Nombre de los atributos
+     * @param atribsValues    Valor de los atributos
+     * @param out             Archivo donde se va guardar en nuevo arbol
+     *                        DOM
+     * @return Devuelve el nodo "pelicula", si no contiene
+     *         ningun nodo raiz devuelve null
+     */
+    public Element addFilm(Document domTree, String title, String directorName, String directorSurname,
+            String[] atribsNames, String[] atribsValues, File out) {
+        Element eFilm = addFilm(domTree, title, directorName, directorSurname, atribsNames, atribsValues);
+        grabarDOM(domTree, out.getAbsolutePath());
+        return eFilm;
+    }
 
     public static void main(String[] args) {
         App app = new App();
+        Document doc = app.createDomTree(filmFile);
         // long startTime = System.currentTimeMillis();
         // long endTime;
-        Document doc = app.createDomTree(filmFile);
         // endTime = System.currentTimeMillis() - startTime;
         // System.out.println(endTime);
-        app.addAtrib(doc, "Dune", "alan", "5");
+        // String[] names = { "año", "genero", "idioma" };
+        // String[] values = { "1987", "accion", "en" };
+        // app.addFilm(doc, "Depredador", "Jhon", "Tiernan", names, values,
+        // new File("C:\\Users\\Manue\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml"));
     }
 
     public static File filmFile = new File(
-            System.getProperty("user.home") + "\\Documents\\AD\\Boletin2\\Peliculas.xml");
+            System.getProperty("user.home") + "\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml");
 }

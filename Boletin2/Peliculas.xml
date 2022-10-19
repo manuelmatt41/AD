@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><filmoteca>
     <!--  Las películas  -->
     <pelicula año="1984" genero="Ciencia Ficción" idioma="es">
-        <titulo alan="5">Dune</titulo>
+        <titulo>Dune</titulo>
         <director>
             <nombre>David</nombre>
             <apellido>Lynch</apellido>
@@ -48,6 +48,13 @@
         <director>
             <nombre>Ridley</nombre>
             <apellido>Scott</apellido>
+        </director>
+    </pelicula>
+    <pelicula año="1987" genero="accion" idioma="en">
+        <titulo>Depredador</titulo>
+        <director>
+            <nombre>Jhon</nombre>
+            <apellido>Tiernan</apellido>
         </director>
     </pelicula>
 </filmoteca>
