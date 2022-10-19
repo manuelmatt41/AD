@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -12,6 +14,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.SAXException;
 
 public class App {
@@ -166,29 +172,66 @@ public class App {
         System.out.printf("Hay un total de %d generos distintos", differentGenders.size());
     }
 
-    //Ejercicio 7
+    // Ejercicio 7
     public void addAtrib(Document domTree, String title, String atribName, String atribValue) {
-        NodeList film = domTree.getElementsByTagName("titulo");
-        Node titleNode;
-        NamedNodeMap atribs;
-        for (int i = 0; i < film.getLength(); i++) {
-            titleNode = film.item(i);
-            if (titleNode.getNodeType() == Node.ELEMENT_NODE) {
-                if (titleNode.getFirstChild().getNodeValue().equals(title)) {
-                    if (titleNode.hasAttributes()) {
-                        atribs = titleNode.getAttributes();
-                        for (int j = 0; j < atribs.getLength(); j++) {
-                            if (atribs.item(j).getNodeName().equals(atribName)) {
-                                ((Element)titleNode).setAttribute(atribName, atribValue);
-                            }
-                        }
-                    } else {
-                        ((Element)titleNode).setAttribute(atribName, atribValue);
-                    }
+        NodeList films = domTree.getElementsByTagName("titulo");
+        Node film = getElement(films, title, false);
+        NamedNodeMap atribs = film.getAttributes();
+        if (atribs != null) {
+            for (int j = 0; j < atribs.getLength(); j++) {
+                if (atribs.item(j).getNodeName().equals(atribName)) {
+                    System.out.println(atribs.item(j).getParentNode());
+                    ((Element) film).setAttribute(atribName, atribValue);
                 }
             }
         }
+        grabarDOM(domTree, "C:\\Users\\Manuel Marín\\Documents\\AD\\Boletin2\\Peliculas.xml");
     }
+
+    public void removeAtrib(Document domTree, String title, String atribname) {
+        NodeList films = domTree.getElementsByTagName("titulo");
+        NamedNodeMap atribs = getElement(films, "Dune", false).getAttributes();
+        if (atribs != null) {
+
+        }
+    }
+
+    public Node getElement(NodeList nodeList, String value, boolean hasAttributes) {
+        Node node;
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            node = nodeList.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE && node.getFirstChild().getNodeValue().equals(value)) {
+                if (hasAttributes) {
+                    return node.hasAttributes() ? node : null;
+                } else {
+                    return node;
+                }
+            }
+        }
+        return null;
+    }
+
+    public void grabarDOM(Document document, String ficheroSalida) {
+        DOMImplementationRegistry registry = null;
+        try {
+            registry = DOMImplementationRegistry.newInstance();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException e1) {
+            e1.printStackTrace();
+        }
+        DOMImplementationLS ls = (DOMImplementationLS) registry.getDOMImplementation("XML 3.0 LS 3.0");
+        LSOutput output = ls.createLSOutput();
+        output.setEncoding("UTF-8");
+        try {
+            output.setByteStream(new FileOutputStream(ficheroSalida));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        LSSerializer serializer = ls.createLSSerializer();
+        serializer.setNewLine("\r\n");
+        serializer.getDomConfig().setParameter("format-pretty-print", true);
+        serializer.write(document, output);
+    }
+
     public static void main(String[] args) {
         App app = new App();
         // long startTime = System.currentTimeMillis();
@@ -196,7 +239,7 @@ public class App {
         Document doc = app.createDomTree(filmFile);
         // endTime = System.currentTimeMillis() - startTime;
         // System.out.println(endTime);
-        app.addAtrib(doc, "Dune", "doc", "aa");
+        app.addAtrib(doc, "Dune", "alan", "5");
     }
 
     public static File filmFile = new File(
