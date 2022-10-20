@@ -300,7 +300,7 @@ public class App {
     public Element addFilm(Document domTree, String title, String directorName, String directorSurname,
             String[] atribsNames, String[] atribsValues) {
         if (atribsNames.length != atribsValues.length) {
-            return null;
+            throw new IllegalArgumentException();
         }
         Element eFilm = addFilm(domTree, title, directorName, directorSurname);
         for (int i = 0; i < atribsNames.length; i++) {
