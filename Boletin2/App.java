@@ -24,7 +24,6 @@ public class App {
     // Ejercicio 1
     public Document createDomTree(File file) {
         Document doc = null;
-
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -203,10 +202,10 @@ public class App {
     }
 
     // public Node searchFilm(Document domTree, String mainValue) {
-    //     NodeList films = domTree.getElementsByTagName("pelicula");
-    //     for (int i = 0; i < array.length; i++) {
-    //         mainValue
-    //     }
+    // NodeList films = domTree.getElementsByTagName("pelicula");
+    // for (int i = 0; i < array.length; i++) {
+    // mainValue
+    // }
     // }
 
     public void grabarDOM(Document document, String ficheroSalida) {
