@@ -1,10 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?><filmoteca>
+<?xml version="1.0" encoding="UTF-8"?>
+<filmoteca>
     <!--  Las películas  -->
     <pelicula año="1984" genero="Ciencia Ficción" idioma="es">
         <titulo>Dune</titulo>
         <director>
             <nombre>David</nombre>
             <apellido>Lynch</apellido>
+        </director>
+        <director>
+            <nombre>Alfredo</nombre>
+            <apellido>Landa</apellido>
         </director>
         <director>
             <nombre>Alfredo</nombre>

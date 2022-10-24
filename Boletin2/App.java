@@ -41,6 +41,20 @@ public class App {
         return doc;
     }
 
+    public Document createDomTree() {
+        DocumentBuilderFactory docFactory;
+        DocumentBuilder docBuilder = null;
+        try {
+            docFactory = DocumentBuilderFactory.newInstance();
+            docBuilder = docFactory.newDocumentBuilder();
+        } catch (FactoryConfigurationError e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+        return docBuilder.newDocument();
+    }
+
     // Ejercicio 3
     public void showFilms(Document domTree) {
         NodeList filmList = domTree.getElementsByTagName("pelicula");
@@ -201,7 +215,7 @@ public class App {
         return null;
     }
 
-    // public Node searchFilm(Document domTree, String mainValue) {
+    // public searchFilm(Document domTree, String mainValue) {
     // NodeList films = domTree.getElementsByTagName("pelicula");
     // for (int i = 0; i < array.length; i++) {
     // mainValue
@@ -331,6 +345,7 @@ public class App {
         return eFilm;
     }
 
+    // Ejercicio 9
     public void changeDirector(Document domTree, String oldName, String newName, String oldSurname, String newSurname) {
         Node name = getNode(domTree.getElementsByTagName("nombre"), oldName);
         Node surname = getNode(domTree.getElementsByTagName("apellido"), oldSurname);
@@ -350,9 +365,12 @@ public class App {
         changeDirector(domTree, oldName, newName, surname, "");
     }
 
-    public void addDirector(Document domTree, Node director, Node film) {
-        film.appendChild(director);
-        grabarDOM(domTree, filmFile.getAbsolutePath());
+    // Ejercicio 10
+    public void addDirector(Document domTree, Node newDirector, Node title, Node director) {
+        if (title.getParentNode().isSameNode(director.getParentNode())) {
+            title.getParentNode().appendChild(newDirector);
+            grabarDOM(domTree, filmFile.getAbsolutePath());
+        }
     }
 
     public Node createDirector(Document domTree, String name, String surname) {
@@ -366,21 +384,84 @@ public class App {
         return director;
     }
 
+    // Ejercicio 11
+    public void removeMovie(Document domTree, String title) {
+        Node removedFilm = getNode(domTree.getElementsByTagName("titulo"), title);
+        if (removedFilm != null) {
+            domTree.getFirstChild().removeChild(removedFilm.getParentNode());
+            grabarDOM(domTree, filmFile.getAbsolutePath());
+        }
+    }
+
+    public Element createCompanya(Document domTree) {
+        return domTree.createElement("compañia");
+    }
+
+    public Element createEmpleado(Document domTree, String name) {
+        Element empleado = domTree.createElement("empleado");
+        Element nameElement = domTree.createElement("nombre");
+        nameElement.appendChild(domTree.createTextNode(name));
+        empleado.appendChild(nameElement);
+        return empleado;
+    }
+
+    public Element createEmpleado(Document domTree, String name, String surname) {
+        Element empleado = createEmpleado(domTree, name);
+        Element surnameElement = domTree.createElement("apellido");
+        surnameElement.appendChild(domTree.createTextNode(surname));
+        empleado.appendChild(surnameElement);
+        return empleado;
+    }
+
+    public Element createEmpleado(Document domTree, String name, String surname, String nickname) {
+        Element empleado = createEmpleado(domTree, name, surname);
+        Element nicknameElement = domTree.createElement("apodo");
+        nicknameElement.appendChild(domTree.createTextNode(nickname));
+        empleado.appendChild(nicknameElement);
+        return empleado;
+    }
+
+    public Element createEmpleado(Document domTree, String name, String surname, String nickname,
+            int salary) {
+        Element empleado = createEmpleado(domTree, name, surname, nickname);
+        Element salaryElement = domTree.createElement("salario");
+        salaryElement.appendChild(domTree.createTextNode(Integer.toString(salary)));
+        empleado.appendChild(salaryElement);
+        return empleado;
+    }
+
+    public Element createEmpleado(Document domTree, String name, String surname, String nickname,
+            int salary, String[] atribNames, String[] atribvalues) {
+        if (atribNames.length == atribvalues.length) {
+            Element empleado = createEmpleado(domTree, name, surname, nickname, salary);
+            for (int i = 0; i < atribvalues.length; i++) {
+                empleado.setAttribute(atribNames[i], atribvalues[i]);
+            }
+            return empleado;
+        }
+        return null;
+    }
+
+    public void addEmpleado(Document domTree, Element root, Element empleado) {
+        root.appendChild(empleado);
+        domTree.appendChild(root);
+        grabarDOM(domTree, filmFile2.getAbsolutePath());
+    }
+
     public static void main(String[] args) {
         App app = new App();
         Document doc = app.createDomTree(filmFile);
+        Document doc2 = app.createDomTree();
         // long startTime = System.currentTimeMillis();
         // long endTime;
         // endTime = System.currentTimeMillis() - startTime;
-        // System.out.println(endTime);
-        // String[] names = { "año", "genero", "idioma" };
-        // String[] values = { "1987", "accion", "en" };
-        // app.addFilm(doc, "Depredador", "Jhon", "Tiernan", names, values,
-        // new File("C:\\Users\\Manue\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml"));
-        app.addDirector(doc, app.createDirector(doc, "Alfredo", "Landa"),
-                app.getNode(doc.getElementsByTagName("titulo"), "Dune").getParentNode());
+        // System.out.println(endTime););
+        app.addEmpleado(doc2, app.createCompanya(doc2), app.createEmpleado(doc2, "Juan", "López Pérez", "Juanín",
+                1000, new String[] {"id"}, new String[] {"1"}));
     }
 
     public static File filmFile = new File(
-            System.getProperty("user.home") + "\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml");
+            System.getProperty("user.home") + "\\Documents\\AD\\Boletin2\\Peliculas.xml");
+    public static File filmFile2 = new File(
+            System.getProperty("user.home") + "\\Documents\\AD\\Boletin2\\Compañia.xml");
 }
