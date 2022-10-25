@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<filmoteca>
+<?xml version="1.0" encoding="UTF-8"?><filmoteca>
     <!--  Las películas  -->
     <pelicula año="1984" genero="Ciencia Ficción" idioma="es">
         <titulo>Dune</titulo>
@@ -64,6 +63,13 @@
         <director>
             <nombre>Jhon</nombre>
             <apellido>Tiernan</apellido>
+        </director>
+    </pelicula>
+    <pelicula aa="aa">
+        <titulo>aa</titulo>
+        <director>
+            <nombre>aa</nombre>
+            <apellido>aa</apellido>
         </director>
     </pelicula>
 </filmoteca>
