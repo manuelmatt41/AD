@@ -17,7 +17,7 @@ public class Sax {
         } catch (ParserConfigurationException | SAXException e) {
             e.printStackTrace();
         }
-        ParserSax parserSax = new ParserSax();
+        ParserSaxEj4 parserSax = new ParserSaxEj4(2);
         try {
             parser.parse(new File(xmlPath), parserSax);
         } catch (SAXException | IOException e) {

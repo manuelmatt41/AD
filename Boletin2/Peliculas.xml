@@ -10,10 +10,6 @@
             <nombre>Alfredo</nombre>
             <apellido>Landa</apellido>
         </director>
-        <director>
-            <nombre>Alfredo</nombre>
-            <apellido>Landa</apellido>
-        </director>
     </pelicula>
     <pelicula año="2001" genero="Fantasia" idioma="es">
         <titulo>El Señor de los Anillos</titulo>
