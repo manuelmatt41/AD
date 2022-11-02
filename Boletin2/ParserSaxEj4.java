@@ -3,75 +3,51 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class ParserSaxEj4 extends DefaultHandler {
-    public ParserSaxEj4(int maxDirectorsToShow) {
-        nodeName = "";
-        lastNodeName = "";
-        directorCount = 0;
-        isFilm = false;
-        this.maxDirectorsToShow = maxDirectorsToShow;
-        documentSave = false;
+    public ParserSaxEj4(int numberOfDirectors) {
+        this.numberOfDirectors = numberOfDirectors;
+        countOfDirectors = 0;
+        element = "";
+        title = "";
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-            switch (qName) {
-                case "pelicula":
-                    isFilm = true;
-                    if (nodeName.equals("start")) {
-                        nodeName = "end";
-                        return;
-                    }
-                    nodeName = "start";
-                    break;
-                case "director":
-                    isFilm = false;
-                    directorCount++;
-                    break;
-            }
-    }
-
-    public void showFilm(char[] ch) {
-        System.out.println(new String(ch, startFilm, startFilm + endFilm));
-    }
-
-    public void getDocument(char[] ch) {
-        String[] partialDocument = new String(ch).replace("\n", " ").replace("\r", " ").replace("\t", " ").split(" ");
-        document = "";
-        for (String cadenas : partialDocument) {
-            
-            document += cadenas;
+        switch (qName) {
+            case "titulo":
+                element = qName;
+                return;
+            case "director":
+                countOfDirectors++;
+                break;
         }
-        documentSave = true;
+        element = "";
     }
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
-        if (!documentSave) {
-            getDocument(ch);
-        }
-        if (isFilm) { 
-            if (nodeName.equals("start")) {
-                startFilm = start;
-                System.out.println(new String(ch, start, length));
-            } else {
-                if (directorCount == maxDirectorsToShow) {
-                    // showFilm(ch);
-                }
-                endFilm = 0;
-                directorCount = 0;
+        if (element.equals("titulo")) {
+            if (title.equals(""))
+            {
+                title = new String(ch, start, length);
             }
-        endFilm += length;
         }
-        endFilm += length;
+    }
+    
+    @Override
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+        if (qName.equals("pelicula"))
+        {
+            if (countOfDirectors == numberOfDirectors)
+            {
+                System.out.printf("Title: %s\n", title);
+            }
+            countOfDirectors = 0;
+            title = "";
+        }
     }
 
-    String nodeName;
-    String lastNodeName;
-    boolean isFilm;
-    int directorCount;
-    int maxDirectorsToShow;
-    int startFilm;
-    int endFilm;
-    boolean documentSave;
-    String document;
+    int numberOfDirectors;
+    int countOfDirectors;
+    String title;
+    String element;
 }

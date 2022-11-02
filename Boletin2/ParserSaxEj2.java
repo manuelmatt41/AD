@@ -4,7 +4,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class ParserSaxEj2 extends DefaultHandler {
     public ParserSaxEj2() {
-        isTitle = false;
     }
     
     @Override
@@ -26,5 +25,4 @@ public class ParserSaxEj2 extends DefaultHandler {
         System.err.printf("</%s>", qName);
     }
 
-    boolean isTitle;
 }

@@ -68,4 +68,11 @@
             <apellido>aa</apellido>
         </director>
     </pelicula>
+    <pelicula aa="aa">
+        <titulo>aa</titulo>
+        <director>
+            <nombre>aa</nombre>
+            <apellido>aa</apellido>
+        </director>
+    </pelicula>
 </filmoteca>
