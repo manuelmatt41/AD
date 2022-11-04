@@ -35,6 +35,6 @@ public class JsonManager {
     }
 
     public void readLocationWheatherData(String location) {
-        System.out.println(readJson(String.format("http://api.openweathermap.org/data/2.5/weather?q=%s,es&lang=es&APPID=8f8dccaf02657071004202f05c1fdce0", location)));
+        System.out.println(readJson(String.format("http://api.openweathermap.org/data/2.5/weather?q=%s,es&lang=es&APPID=8f8dccaf02657071004202f05c1fdce0", location)).asJsonObject());
     }
 }
