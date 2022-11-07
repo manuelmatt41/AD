@@ -144,7 +144,7 @@ public class App {
         Node aux;
         for (int i = 0; i < films.getLength(); i++) {
             directors = ((Element) films.item(i)).getElementsByTagName("director");
-            if (directors.getLength() == numberOfDirectors) {
+            if (directors.getLength() >= numberOfDirectors) {
                 for (int j = 0; j < directors.getLength(); j++) {
                     auxList = directors.item(j).getChildNodes();
                     for (int k = 0; k < auxList.getLength(); k++) {
@@ -168,11 +168,16 @@ public class App {
     public void showGender(Document domTree) {
         NodeList films = domTree.getElementsByTagName("pelicula");
         Node film;
+        Element film2;
         Node atrib;
         NamedNodeMap atribs;
         ArrayList<String> differentGenders = new ArrayList<>();
         for (int i = 0; i < films.getLength(); i++) {
             film = films.item(i);
+            // film2=(Element)films.item(i);
+            // if (film2.hasAttribute("genero") && !differentGenders.contains(film2.getAttribute("genero"))){
+            //     differentGenders.add(film2.getAttribute("genero"));
+            // }
             if (film.hasAttributes()) {
                 atribs = film.getAttributes();
                 for (int j = 0; j < atribs.getLength(); j++) {
@@ -364,7 +369,7 @@ public class App {
         }
         grabarDOM(domTree, System.getProperty("user.home") + "\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml");
     }
-
+//TODO Arreglar el cambio de director
     public void changeDirectorName(Document domTree, String oldName, String newName, String surname) {
         changeDirector(domTree, oldName, newName, surname, "");
     }

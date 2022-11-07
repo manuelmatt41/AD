@@ -1,25 +1,36 @@
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.json.JsonValue;
 
 public class JsonManager {
-    public JsonValue readJson(String path) {
+    public static JsonValue readJson(String path) {
         if (path.startsWith("http://")) {
-            return  readJsonHtpp(path);
+            return readJsonHtpp(path);
+        } else {
+            return readJsonPath(path);
+        }
+    }
+
+    private static JsonValue readJsonPath(String path) {
+        try (JsonReader jsonReader = Json.createReader(new FileReader(path))) {
+            return jsonReader.read();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
-    public JsonValue readJsonHtpp(String path) {
+    private static JsonValue readJsonHtpp(String path) {
         URL url = null;
         HttpURLConnection connectionHttp = null;
         try {
@@ -38,50 +49,49 @@ public class JsonManager {
         return null;
     }
 
-    public void readLocationWheatherData(String location) {
+    private static void readLocationWheatherData(String location) {
         System.out.println((getLocationWheatherData(location)));
     }
 
-    public JsonObject getLocationWheatherData(String location) {
-        return readJson(String.format("http://api.openweathermap.org/data/2.5/weather?q=%s,es&lang=es&APPID=8f8dccaf02657071004202f05c1fdce0", location)).asJsonObject();
+    private static JsonObject getLocationWheatherData(String location) {
+        return readJson(String.format(
+                "http://api.openweathermap.org/data/2.5/weather?q=%s,es&lang=es&APPID=8f8dccaf02657071004202f05c1fdce0",
+                location)).asJsonObject();
     }
 
-    public void readLocationWheatherData(double longitude, double latitude) {
-        System.out.println(readJson(String.format("http://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&APPID=8f8dccaf02657071004202f05c1fdce0", latitude, longitude)).asJsonObject());
+    private static JsonObject getLocationWheatherData(double latitude, double longitude, int nearCities) {
+        return readJson(String.format(
+                "http://api.openweathermap.org/data/2.5/find?lat=%f&lon=%f&cnt=%d&APPID=8f8dccaf02657071004202f05c1fdce0",
+                latitude, longitude, nearCities)).asJsonObject();
     }
 
-    public void readLocationWheatherData(double longitude, double latitude, int countPredictions) {
-        System.out.println(readJson(String.format("http://api.openweathermap.org/data/2.5/find?lat=%f&lon=%f&cnt=%d&APPID=8f8dccaf02657071004202f05c1fdce0", latitude, longitude, countPredictions)).asJsonObject());
-    }
-    public JsonObject getLocationWheatherData(double longitude, double latitude) {
-        return readJson(String.format("http://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&APPID=8f8dccaf02657071004202f05c1fdce0", latitude, longitude)).asJsonObject();
-    }
-
-    public int getLocationIdFromLocation(String location) {
-        return getLocationWheatherData(location).getInt("id");
+    public static WeatherCityData getWeatherCityData(String location) {
+        if (!locationExist(location)) {
+            return null;
+        }
+        return new WeatherCityData(getLocationWheatherData(location));
     }
 
-    public String getLocationNameFromCoordinates(double longitude, double latitude) {
-        return getLocationWheatherData(longitude, latitude).getString("name");
+    public static WeatherCityData[] getWeatherCitysDatas(String location, int nearCities) {
+        if (!locationExist(location)) {
+            return null;
+        }
+        WeatherCityData mainLocation = getWeatherCityData(location);
+        JsonArray cities = getLocationWheatherData(mainLocation.getLatitude(), mainLocation.getLongitude(), nearCities + 1).getJsonArray("list");
+        WeatherCityData[] weatherCityDatas = new WeatherCityData[cities.size()];
+        for (int i = 0; i < cities.size(); i++) {
+            weatherCityDatas[i] = new WeatherCityData(cities.getJsonObject(i));
+        }
+        return weatherCityDatas;
     }
 
-    public String getCoordinatesFromLocation(String location) {
-        return String.format("Longitude: %f || Latitude: %f",getLocationWheatherData(location).getJsonObject("coord").getJsonNumber("lon").doubleValue(),getLocationWheatherData(location).getJsonObject("coord").getJsonNumber("lat").doubleValue());
-    }
-
-    public Object getWheatherDataInt(String dataName, String location) {
-        return getLocationWheatherData(location);
-    }
-    public Object getWheatherDataString(String dataName, String location) {
-        return getLocationWheatherData(location);
-    }
-    public Object getWheatherDataDouble(String dataName, String location) {
-        return getLocationWheatherData(location);
-    }
-    public Object getWheatherDataBoolean(String dataName, String location) {
-        return getLocationWheatherData(location);
-    }
-    public String getWheatherDataDate(String dataName, String location) {
-        return Instant.ofEpochSecond(getLocationWheatherData(location).getJsonNumber(dataName).longValue()).atZone(ZoneId.of("GMT+1")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    public static boolean locationExist(String location) {
+        JsonArray citys = readJson("res\\city.list.json").asJsonArray();
+        for (int i = 0; i < citys.size(); i++) {
+            if (citys.getJsonObject(i).getString("name").equalsIgnoreCase(location)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

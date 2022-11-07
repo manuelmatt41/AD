@@ -17,7 +17,7 @@ public class Sax {
         } catch (ParserConfigurationException | SAXException e) {
             e.printStackTrace();
         }
-        ParserSax5 parserSax = new ParserSax5();
+        ParserSaxEj2 parserSax = new ParserSaxEj2();
         try {
             parser.parse(new File(xmlPath), parserSax);
         } catch (SAXException | IOException e) {
@@ -27,6 +27,6 @@ public class Sax {
 
     public static void main(String[] args) {
         Sax sax = new Sax();
-        sax.getSax("C:\\Users\\Manuel Marín\\Documents\\AD\\Boletin2\\Peliculas.xml");
+        sax.getSax("C:\\Users\\Manu\\Documents\\AD\\Boletin2\\Peliculas.xml");
     }
 }
