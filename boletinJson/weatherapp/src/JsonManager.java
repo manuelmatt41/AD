@@ -12,6 +12,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
 
+@SuppressWarnings("all")
 public class JsonManager {
     public static JsonValue readJson(String path) {
         if (path.startsWith("http://")) {
@@ -49,38 +50,45 @@ public class JsonManager {
         return null;
     }
 
-    private static void readLocationWheatherData(String location) {
-        System.out.println((getLocationWheatherData(location)));
-    }
-
-    private static JsonObject getLocationWheatherData(String location) {
+    // Ejercicio 1
+    private static JsonObject getLocationWeatherData(String location) {
         return readJson(String.format(
                 "http://api.openweathermap.org/data/2.5/weather?q=%s,es&lang=es&APPID=8f8dccaf02657071004202f05c1fdce0",
                 location)).asJsonObject();
     }
 
+    // Ejercicio 2
+    private static JsonObject getLocationWheatherData(double latitude, double longitude) {
+        return readJson(String.format(
+                "http://api.openweathermap.org/data/2.5/find?lat=%f&lon=%f&APPID=8f8dccaf02657071004202f05c1fdce0",
+                latitude, longitude)).asJsonObject();
+    }
+
+    // Ejercicio 3
     private static JsonObject getLocationWheatherData(double latitude, double longitude, int nearCities) {
         return readJson(String.format(
                 "http://api.openweathermap.org/data/2.5/find?lat=%f&lon=%f&cnt=%d&APPID=8f8dccaf02657071004202f05c1fdce0",
                 latitude, longitude, nearCities)).asJsonObject();
     }
 
-    public static WeatherCityData getWeatherCityData(String location) {
+    public static CityWeatherData getCityWeatherData(String location) {
         if (!locationExist(location)) {
             return null;
         }
-        return new WeatherCityData(getLocationWheatherData(location));
+        return new CityWeatherData(getLocationWeatherData(location));
     }
 
-    public static WeatherCityData[] getWeatherCitysDatas(String location, int nearCities) {
+    // Ejercicio 8
+    public static CityWeatherData[] getCitiesWeatherDatas(String location, int nearCities) {
         if (!locationExist(location)) {
             return null;
         }
-        WeatherCityData mainLocation = getWeatherCityData(location);
-        JsonArray cities = getLocationWheatherData(mainLocation.getLatitude(), mainLocation.getLongitude(), nearCities + 1).getJsonArray("list");
-        WeatherCityData[] weatherCityDatas = new WeatherCityData[cities.size()];
+        CityWeatherData mainLocation = getCityWeatherData(location);
+        JsonArray cities = getLocationWheatherData(mainLocation.getLatitude(), mainLocation.getLongitude(),
+                nearCities + 1).getJsonArray("list");
+        CityWeatherData[] weatherCityDatas = new CityWeatherData[cities.size()];
         for (int i = 0; i < cities.size(); i++) {
-            weatherCityDatas[i] = new WeatherCityData(cities.getJsonObject(i));
+            weatherCityDatas[i] = new CityWeatherData(cities.getJsonObject(i));
         }
         return weatherCityDatas;
     }
