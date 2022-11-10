@@ -355,26 +355,23 @@ public class App {
         grabarDOM(domTree, out.getAbsolutePath());
         return eFilm;
     }
-
+    //TODO Corregir todo a partir de aqui
     // Ejercicio 9
-    public void changeDirector(Document domTree, String oldName, String newName, String oldSurname, String newSurname) {
-        Node name = getNode(domTree.getElementsByTagName("nombre"), oldName);
-        Node surname = getNode(domTree.getElementsByTagName("apellido"), oldSurname);
-        if (name == null || surname == null) {
-            return;
-        }
-        if (surname.getFirstChild().getNodeValue().equals(oldSurname)) {
-            name.getFirstChild().setNodeValue(newName);
-            if (!newSurname.equals("")) {
-                surname.getFirstChild().setNodeValue(newSurname);
+    public void changeDirector(Document domTree, Node director, String newName, String newSurname) {
+        if (director != null) {
+            NodeList directorChilds = director.getChildNodes();
+            for (int i = 0; i < directorChilds.getLength(); i++) {
+                Node child = directorChilds.item(i);
+                if (child.getNodeType() == Node.ELEMENT_NODE) {
+                    if (child.getNodeName().equals("nombre")) {
+                        child.getFirstChild().setNodeValue(newName);
+                    }
+                    if (child.getNodeName().equals("apellido")) {
+                        child.getFirstChild().setNodeValue(newSurname);
+                    }
+                }
             }
         }
-        grabarDOM(domTree, System.getProperty("user.home") + "\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml");
-    }
-
-    // TODO Arreglar el cambio de director
-    public void changeDirectorName(Document domTree, String oldName, String newName, String surname) {
-        changeDirector(domTree, oldName, newName, surname, "");
     }
 
     // Ejercicio 10
