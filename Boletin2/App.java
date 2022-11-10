@@ -175,8 +175,9 @@ public class App {
         for (int i = 0; i < films.getLength(); i++) {
             film = films.item(i);
             // film2=(Element)films.item(i);
-            // if (film2.hasAttribute("genero") && !differentGenders.contains(film2.getAttribute("genero"))){
-            //     differentGenders.add(film2.getAttribute("genero"));
+            // if (film2.hasAttribute("genero") &&
+            // !differentGenders.contains(film2.getAttribute("genero"))){
+            // differentGenders.add(film2.getAttribute("genero"));
             // }
             if (film.hasAttributes()) {
                 atribs = film.getAttributes();
@@ -217,7 +218,8 @@ public class App {
         Node node;
         for (int i = 0; i < nodeList.getLength(); i++) {
             node = nodeList.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE && node.getFirstChild().getNodeValue().equals(value)) {
+            if (node.getNodeType() == Node.ELEMENT_NODE
+                    && node.getFirstChild().getNodeValue().equalsIgnoreCase(value)) {
                 return node;
             }
         }
@@ -369,7 +371,8 @@ public class App {
         }
         grabarDOM(domTree, System.getProperty("user.home") + "\\Documents\\DAM\\AD\\Boletin2\\Peliculas.xml");
     }
-//TODO Arreglar el cambio de director
+
+    // TODO Arreglar el cambio de director
     public void changeDirectorName(Document domTree, String oldName, String newName, String surname) {
         changeDirector(domTree, oldName, newName, surname, "");
     }
@@ -380,6 +383,34 @@ public class App {
             title.getParentNode().appendChild(newDirector);
             grabarDOM(domTree, filmFile.getAbsolutePath());
         }
+    }
+
+    public Node getDirector(Document domTree, NodeList directors, String name, String surname) {
+        for (int i = 0; i < directors.getLength(); i++) {
+            Node director = directors.item(i);
+            if (director.getNodeType() == Node.ELEMENT_NODE) {
+                NodeList directorsChild = director.getChildNodes();
+                boolean isSameName = false;
+                boolean isSameSurname = false;
+                for (int j = 0; j < directorsChild.getLength(); j++) {
+                    Node directorChild = directorsChild.item(j);
+                    if (directorChild.getNodeType() == Node.ELEMENT_NODE) {
+                        if (directorChild.getNodeName().equals("nombre")
+                                && directorChild.getFirstChild().getNodeValue().equalsIgnoreCase(name)) {
+                            isSameName = true;
+                        }
+                        if (directorChild.getNodeName().equals("apellido")
+                                && directorChild.getFirstChild().getNodeValue().equalsIgnoreCase(surname)) {
+                            isSameSurname = true;
+                        }
+                        if (isSameName && isSameSurname) {
+                            return director;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public Node createDirector(Document domTree, String name, String surname) {
@@ -465,8 +496,14 @@ public class App {
         // long endTime;
         // endTime = System.currentTimeMillis() - startTime;
         // System.out.println(endTime););
-        app.addFilm(doc, "aa", "aa", "aa", new String[] {"aa"}, new String[] {"aa"}, filmFile);
-        app.addEmpleado(doc2, app.createCompanya(doc2), app.createEmpleado(doc2, "Juan", "López Pérez", "Juanín"));
+        Node newDirector = app.createDirector(doc, "Alfredo", "Landa");
+        Node title = app.getNode(doc.getElementsByTagName("titulo"), "Dune");
+        Node director = app.getDirector(doc, doc.getElementsByTagName("director"), "David", "lynch");
+        app.addDirector(doc, newDirector, title, director);
+        // app.addFilm(doc, "aa", "aa", "aa", new String[] {"aa"}, new String[] {"aa"},
+        // filmFile);
+        // app.addEmpleado(doc2, app.createCompanya(doc2), app.createEmpleado(doc2,
+        // "Juan", "López Pérez", "Juanín"));
     }
 
     public static File filmFile = new File(
