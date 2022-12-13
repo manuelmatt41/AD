@@ -44,7 +44,7 @@ public class JDBC {
         return -1;
     }
 
-    public void getAlumnos(String name) {
+    public void getStudent(String name) {
         openConnection();
         String query = String.format("SELECT * FROM alumnos WHERE nombre LIKE (\"%%%s%%\")", name);
         int countRows = 0;
@@ -61,27 +61,63 @@ public class JDBC {
         closeConnection();
     }
 
-    public void addAlumnos(String name, String surname, int height, int classNumber) {
+    public void addStudent(Student student) {
         openConnection();
-        String update = String.format(
+        String query = String.format(
                 "INSERT INTO alumnos (nombre, apellidos, altura, aula) VALUES (\"%s\", \"%s\", %d, %d)",
-                name, surname, height, classNumber);
+                student.getName(), student.getSurname(), student.getHeight(), student.getClassId());
         try (Statement statement = this.connection.createStatement()) {
-            System.out.printf("%s", statement.executeUpdate(update) != 0 ? "Student added" : "Student not added");
+            System.out.printf("%s", statement.executeUpdate(query) != 0 ? "Student added" : "Student not added");
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
         closeConnection();
     }
 
-    public void addSubjects(int cod, String name) {
+    public void removeStudent(int id) {
         openConnection();
-        String update = String.format("INSERT INTO asignaturas (cod,nombre) VALUES (%d,\"%s\")", cod + 1, name);
+        String queryNotas = String.format("DELETE FROM notas WHERE alumno=%d;", id);
+        String queryStudent = String.format("DELETE FROM alumnos WHERE codigo=%d;", id);
+        try (Statement statement = this.connection.createStatement()) {
+            statement.executeUpdate(queryNotas);
+            System.out.printf("%s",
+                    statement.executeUpdate(queryStudent) != 0 ? "Student removed" : "Student not removed");
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+        closeConnection();
+    }
+
+    public void updateStudent(Student student) {
+        openConnection();
+        String query = String.format("UPDATE alumnos SET codigo=%d, nombre=%s, apellidos=%s, altura=%d, aula=%d;",
+                student.getId(), student.getName(), student.getSurname(), student.getHeight(), student.getClassId());
+        try (Statement statement = this.connection.createStatement()) {
+            
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+
+    public void addSubjects(Subject subject) {
+        openConnection();
+        String update = String.format("INSERT INTO asignaturas (cod,nombre) VALUES (%d,\"%s\")", subject.getId(),
+                subject.getName());
         try (Statement statement = this.connection.createStatement()) {
             System.out.printf("%s", statement.executeUpdate(update) != 0 ? "Subject added" : "Subject not added");
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
         closeConnection();
+    }
+
+    public void removeSubjects(int id) {
+        openConnection();
+        String query = String.format("DELETE FROM asignaturas WHERE COD=%d;", id);
+        try (Statement statement = this.connection.createStatement()) {
+            System.out.printf("%s", statement.executeUpdate(query) != 0 ? "Subject removed" : "Subject not removed");
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 }
