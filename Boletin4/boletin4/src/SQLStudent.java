@@ -11,6 +11,10 @@ public class SQLStudent {
         return name;
     }
 
+    public String getName(boolean sqlSintax) {
+        return sqlSintax || name.equals("null") ? name : name.replace('\'', ' ').trim();
+    }
+
     public void setName(String name) {
         this.name = validateSqlString(name);
     }
@@ -23,6 +27,10 @@ public class SQLStudent {
 
     public void setSurname(String apellidos) {
         this.surname = validateSqlString(apellidos);
+    }
+
+    public String getSurname(boolean sqlSintax) {
+        return sqlSintax || surname.equals("null") ? surname : surname.replace('\'', ' ').trim();
     }
 
     private Integer height;

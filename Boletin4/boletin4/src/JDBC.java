@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class JDBC {
+public class JDBC { // TODO Make the functions more generic
     private Connection connection;
     private String database = "add";
     private String server = "localhost";
@@ -54,7 +54,7 @@ public class JDBC {
             return false;
         }
 
-        String query = String.format("SELECT EXISTS(SELECT %s FROM %s WHERE %s=%d);", colum, table, colum,value);
+        String query = String.format("SELECT EXISTS(SELECT %s FROM %s WHERE %s=%d);", colum, table, colum, value);
         int result = 0;
         openConnection();
 
@@ -62,7 +62,8 @@ public class JDBC {
             ResultSet resultSet = statement.executeQuery(query);
 
             if (resultSet.next()) {
-                result = resultSet.getInt(String.format("EXISTS(SELECT %s FROM %s WHERE %s=%d)", colum, table, colum,value));
+                result = resultSet
+                        .getInt(String.format("EXISTS(SELECT %s FROM %s WHERE %s=%d)", colum, table, colum, value));
             }
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
@@ -144,7 +145,7 @@ public class JDBC {
             resultSet.next();
             SQLSubject subject = new SQLSubject(resultSet.getInt("cod"), resultSet.getString("nombre"));
             closeConnection();
-            
+
             return subject;
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
@@ -156,18 +157,37 @@ public class JDBC {
     }
 
     public void viewStudent(String name) {
-        String query = String.format("SELECT * FROM alumnos WHERE nombre LIKE (\"%%%s%%\")", name);
+        String query = String.format("SELECT * FROM alumnos WHERE nombre LIKE ('%%%s%%')", name);
         int countRows = 0;
         openConnection();
         try (Statement statement = this.connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
 
             while (resultSet.next()) {
-                System.out.printf("%s\n", resultSet.getString("nombre"));
+                System.out.printf("%-10s%-10s%-5d%-4d\n", resultSet.getString("nombre"), resultSet.getString("apellidos"),resultSet.getInt("altura"), resultSet.getInt("aula"));
                 countRows++;
             }
 
             System.out.println(String.format("%d rows affected", countRows));
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+
+        closeConnection();
+    }
+
+    
+    public void viewStudentName(String patternName, Integer minHeight) {
+        String query = String.format("SELECT nombre FROM alumnos WHERE nombre LIKE ('%%%s%%') AND altura>%d;",
+                patternName, minHeight);
+        openConnection();
+
+        try (Statement statement = this.connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                System.out.printf("%s\n", resultSet.getString("nombre"));
+            }
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
@@ -279,11 +299,62 @@ public class JDBC {
             return;
         }
 
-        String query = String.format("UPDATE asignaturas SET nombre=IFNULL(%s, nombre) WHERE cod=%d", subject.getName(), subject.getId());
+        String query = String.format("UPDATE asignaturas SET nombre=IFNULL(%s, nombre) WHERE cod=%d", subject.getName(),
+                subject.getId());
         openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             System.out.printf("%s", statement.executeUpdate(query) != 0 ? "Subject updated" : "Subject not updated");
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+
+        closeConnection();
+    }
+
+    public void viewClassesWithStudents() {
+        String query = "SELECT aulas.NOMBREAula FROM alumnos JOIN aulas ON aulas.numero=alumnos.aula WHERE aulas.nombreAula IS NOT NULL GROUP BY aula;";
+        openConnection();
+
+        try (Statement statement = this.connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                System.out.printf("%s\n", resultSet.getString("nombreAula"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+
+        closeConnection();
+    }
+
+    public void viewApprovedStudentSubjects() {
+        String query = "SELECT alumnos.nombre, asignaturas.nombre AS nombreAsig, NOTA FROM notas JOIN alumnos ON alumnos.codigo=notas.alumno JOIN asignaturas ON asignaturas.COD=notas.asignatura WHERE nota>=5;";
+
+        try (Statement statement = this.connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                // System.out.printf("%-15s%-40s%-15d\n", resultSet.getString("nombre"), resultSet.getString("nombreAsig"),
+                //         resultSet.getInt("nota"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+
+    }
+
+    public void viewClassesWithoutStudents() {
+        String query = " SELECT nombre FROM asignaturas WHERE cod!=ALL(SELECT asignatura FROM notas);";
+        openConnection();
+
+        try (Statement statement = this.connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                System.out.printf("%s\n", resultSet.getString("nombre"));
+            }
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
