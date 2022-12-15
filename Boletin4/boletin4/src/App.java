@@ -9,14 +9,17 @@ public class App {
         System.out.println((finalTime - initTime) + " miliseconds");
         jdbc.closeConnection();
     }
+
     public static void main(String[] args) throws Exception {
         JDBC jdbc = new JDBC();
+        jdbc.openConnection();
         // SQLStudent student = jdbc.getRandomStudent();
         // SQLSubject sqlSubject = jdbc.getRandomSubject();
 
         // jdbc.viewStudent(student.getName(false));
         // jdbc.addStudent(new Student("Manuel", "Marin", 179, 20));
-        // jdbc.addSubjects(new Subject(jdbc.getRowCount("cod", "asignaturas") + 1,"Matematicas"));
+        // jdbc.addSubjects(new Subject(jdbc.getRowCount("cod", "asignaturas") +
+        // 1,"Matematicas"));
         // jdbc.removeStudent(9);
         // jdbc.removeSubjects(2);
         // student.setName(null);
@@ -26,6 +29,13 @@ public class App {
         // jdbc.viewClassWithStudents();
         // jdbc.viewClassesWithoutStudents();
         // jdbc.viewStudentName("a", 180);
+        // jdbc.addColum("asignaturas", "algofgdfgg", "varar(50)", "not null default 'espero que salga bien'");
+        // jdbc.viewDatabaseData();
+        // jdbc.viewCatalogs();
+        // jdbc.viewDBTables();
+        // jdbc.viewDBViews();
+        jdbc.viewAllDBTables();
+        jdbc.closeConnection();
 
         // getTime(jdbc, 1);
         // getTime(jdbc, 10);
@@ -35,6 +45,6 @@ public class App {
         // getTime(jdbc, 100000);
         // getTime(jdbc, 1000000);
         // getTime(jdbc, 10000000);
-        getTime(jdbc, 100000000);
+        // getTime(jdbc, 100000000);
     }
 }

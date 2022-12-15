@@ -8,29 +8,29 @@ public class SQLStudent {
     private String name;
 
     public String getName() {
-        return name;
+        return getSQLString(name, false);
     }
 
-    public String getName(boolean sqlSintax) {
-        return sqlSintax || name.equals("null") ? name : name.replace('\'', ' ').trim();
+    public String getNameSqlSintax() {
+        return getSQLString(name, true);
     }
 
     public void setName(String name) {
-        this.name = validateSqlString(name);
+        this.name = validateString(name);
     }
 
     private String surname;
 
-    public String getSurname() {
-        return surname;
-    }
-
     public void setSurname(String apellidos) {
-        this.surname = validateSqlString(apellidos);
+        this.surname = validateString(apellidos);
     }
 
-    public String getSurname(boolean sqlSintax) {
-        return sqlSintax || surname.equals("null") ? surname : surname.replace('\'', ' ').trim();
+    public String getSurname() {
+        return getSQLString(surname, false);
+    }
+
+    public String getSurnameSqlSintax() {
+        return getSQLString(surname, true);
     }
 
     private Integer height;
@@ -65,7 +65,11 @@ public class SQLStudent {
         this(null, name, surname, height, classId);
     }
 
-    private String validateSqlString(String stringNullable) {
-        return stringNullable != null ? String.format("'%s'", stringNullable) : "null";
+    private String validateString(String stringNullable) {
+        return stringNullable != null ? stringNullable : "null";
+    }
+
+    private String getSQLString(String sqlString, boolean isSqlSintax) {
+        return isSqlSintax && !sqlString.equals("null") ? String.format("'%s'", sqlString) : sqlString;
     }
 }

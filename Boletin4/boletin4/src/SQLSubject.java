@@ -8,8 +8,13 @@ public class SQLSubject {
     private String name;
     
     public String getName() {
-        return name;
+        return getSQLString(name, false);
     }
+
+    public String getNameSqlSintax() {
+        return getSQLString(name, true);
+    }
+    
     public void setName(String name) {
         this.name = validateSqlString(name);
     }
@@ -25,5 +30,9 @@ public class SQLSubject {
 
     private String validateSqlString(String stringNullable) {
         return stringNullable != null ? String.format("'%s'", stringNullable) : "null";
+    }
+    
+    private String getSQLString(String sqlString, boolean isSqlSintax) {
+        return isSqlSintax && !sqlString.equals("null") ? String.format("'%s'", sqlString) : sqlString;
     }
 }

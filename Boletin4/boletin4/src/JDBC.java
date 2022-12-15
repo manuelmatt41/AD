@@ -1,4 +1,5 @@
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,7 +33,6 @@ public class JDBC { // TODO Make the functions more generic
     }
 
     public int getRowCount(String column, String table) {
-        openConnection();
         String query = String.format("SELECT COUNT(%s) FROM %s", column, table);
 
         try (Statement statement = this.connection.createStatement()) {
@@ -44,8 +44,6 @@ public class JDBC { // TODO Make the functions more generic
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
 
-        closeConnection();
-
         return -1;
     }
 
@@ -56,7 +54,6 @@ public class JDBC { // TODO Make the functions more generic
 
         String query = String.format("SELECT EXISTS(SELECT %s FROM %s WHERE %s=%d);", colum, table, colum, value);
         int result = 0;
-        openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
@@ -69,8 +66,6 @@ public class JDBC { // TODO Make the functions more generic
             System.out.println("Error in: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
-
-        closeConnection();
 
         return result == 1;
     }
@@ -86,7 +81,6 @@ public class JDBC { // TODO Make the functions more generic
     private ArrayList<Integer> getIntegersPrimarysKeys(String table, String colum) {
         String query = String.format("SELECT %s FROM %s ORDER BY %s;", colum, table, colum);
         ArrayList<Integer> id = new ArrayList<>();
-        openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
@@ -98,7 +92,6 @@ public class JDBC { // TODO Make the functions more generic
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
 
-        closeConnection();
         return id;
     }
 
@@ -114,7 +107,6 @@ public class JDBC { // TODO Make the functions more generic
         ArrayList<Integer> id = getStudentsPrimaryKeys();
         int randomID = id.get((int) (Math.random() * id.size() + 0));
         String query = String.format("SELECT * FROM alumnos WHERE codigo=%d;", randomID);
-        openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
@@ -129,8 +121,6 @@ public class JDBC { // TODO Make the functions more generic
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
 
-        closeConnection();
-
         return null;
     }
 
@@ -138,7 +128,6 @@ public class JDBC { // TODO Make the functions more generic
         ArrayList<Integer> id = getSubjectsPrimaryKeys();
         int randomID = id.get((int) (Math.random() * id.size() + 0));
         String query = String.format("SELECT * FROM asignaturas WHERE cod=%d;", randomID);
-        openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
@@ -151,20 +140,19 @@ public class JDBC { // TODO Make the functions more generic
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
 
-        closeConnection();
-
         return null;
     }
 
     public void viewStudent(String name) {
         String query = String.format("SELECT * FROM alumnos WHERE nombre LIKE ('%%%s%%')", name);
         int countRows = 0;
-        openConnection();
+
         try (Statement statement = this.connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
 
             while (resultSet.next()) {
-                System.out.printf("%-10s%-10s%-5d%-4d\n", resultSet.getString("nombre"), resultSet.getString("apellidos"),resultSet.getInt("altura"), resultSet.getInt("aula"));
+                System.out.printf("%-10s%-10s%-5d%-4d\n", resultSet.getString("nombre"),
+                        resultSet.getString("apellidos"), resultSet.getInt("altura"), resultSet.getInt("aula"));
                 countRows++;
             }
 
@@ -172,15 +160,11 @@ public class JDBC { // TODO Make the functions more generic
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
-
-        closeConnection();
     }
 
-    
     public void viewStudentName(String patternName, Integer minHeight) {
         String query = String.format("SELECT nombre FROM alumnos WHERE nombre LIKE ('%%%s%%') AND altura>%d;",
                 patternName, minHeight);
-        openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
@@ -191,8 +175,6 @@ public class JDBC { // TODO Make the functions more generic
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
-
-        closeConnection();
     }
 
     public void addStudent(SQLStudent student) {
@@ -204,15 +186,12 @@ public class JDBC { // TODO Make the functions more generic
         String query = String.format(
                 "INSERT INTO alumnos (nombre, apellidos, altura, aula) VALUES (\"%s\", \"%s\", %d, %d)",
                 student.getName(), student.getSurname(), student.getHeight(), student.getClassId());
-        openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             System.out.printf("%s", statement.executeUpdate(query) != 0 ? "Student added" : "Student not added");
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
-
-        closeConnection();
     }
 
     public void removeStudent(SQLStudent sqlStudent) {
@@ -223,7 +202,6 @@ public class JDBC { // TODO Make the functions more generic
 
         String queryNotas = String.format("DELETE FROM notas WHERE alumno=%d;", sqlStudent.getId());
         String queryStudent = String.format("DELETE FROM alumnos WHERE codigo=%d;", sqlStudent.getId());
-        openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             statement.executeUpdate(queryNotas);
@@ -233,8 +211,6 @@ public class JDBC { // TODO Make the functions more generic
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
-
-        closeConnection();
     }
 
     public void updateStudent(SQLStudent student) {
@@ -245,15 +221,12 @@ public class JDBC { // TODO Make the functions more generic
         String query = String.format(
                 "UPDATE alumnos SET nombre=IFNULL(%s, nombre), apellidos=IFNULL(%s, apellidos), altura=IFNULL(%d, altura), aula=IFNULL(%d, aula) WHERE codigo=%d;",
                 student.getName(), student.getSurname(), student.getHeight(), student.getClassId(), student.getId());
-        openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             System.out.printf("%s", statement.executeUpdate(query) != 0 ? "Student updated" : "Student not updated");
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
-
-        closeConnection();
     }
 
     public void addSubjects(SQLSubject subject) {
@@ -264,15 +237,12 @@ public class JDBC { // TODO Make the functions more generic
 
         String update = String.format("INSERT INTO asignaturas (cod,nombre) VALUES (%d,\"%s\")", subject.getId(),
                 subject.getName());
-        openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             System.out.printf("%s", statement.executeUpdate(update) != 0 ? "Subject added" : "Subject not added");
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
-
-        closeConnection();
     }
 
     public void removeSubjects(SQLSubject sqlSubject) {
@@ -282,15 +252,12 @@ public class JDBC { // TODO Make the functions more generic
         }
 
         String query = String.format("DELETE FROM asignaturas WHERE COD=%d;", sqlSubject.getId());
-        openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             System.out.printf("%s", statement.executeUpdate(query) != 0 ? "Subject removed" : "Subject not removed");
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
-
-        closeConnection();
     }
 
     public void updateSubject(SQLSubject subject) {
@@ -301,20 +268,16 @@ public class JDBC { // TODO Make the functions more generic
 
         String query = String.format("UPDATE asignaturas SET nombre=IFNULL(%s, nombre) WHERE cod=%d", subject.getName(),
                 subject.getId());
-        openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             System.out.printf("%s", statement.executeUpdate(query) != 0 ? "Subject updated" : "Subject not updated");
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
-
-        closeConnection();
     }
 
     public void viewClassesWithStudents() {
         String query = "SELECT aulas.NOMBREAula FROM alumnos JOIN aulas ON aulas.numero=alumnos.aula WHERE aulas.nombreAula IS NOT NULL GROUP BY aula;";
-        openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
@@ -325,8 +288,6 @@ public class JDBC { // TODO Make the functions more generic
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
-
-        closeConnection();
     }
 
     public void viewApprovedStudentSubjects() {
@@ -336,8 +297,9 @@ public class JDBC { // TODO Make the functions more generic
             ResultSet resultSet = statement.executeQuery(query);
 
             while (resultSet.next()) {
-                // System.out.printf("%-15s%-40s%-15d\n", resultSet.getString("nombre"), resultSet.getString("nombreAsig"),
-                //         resultSet.getInt("nota"));
+                // System.out.printf("%-15s%-40s%-15d\n", resultSet.getString("nombre"),
+                // resultSet.getString("nombreAsig"),
+                // resultSet.getInt("nota"));
             }
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
@@ -347,7 +309,6 @@ public class JDBC { // TODO Make the functions more generic
 
     public void viewClassesWithoutStudents() {
         String query = " SELECT nombre FROM asignaturas WHERE cod!=ALL(SELECT asignatura FROM notas);";
-        openConnection();
 
         try (Statement statement = this.connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
@@ -358,7 +319,89 @@ public class JDBC { // TODO Make the functions more generic
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
+    }
 
-        closeConnection();
+    public void addColum(String table, String newColumName, String dataType, String properties) {
+        String query = String.format("ALTER TABLE %s ADD %s %s %s;", table, newColumName, dataType, properties);
+
+        try (Statement statement = this.connection.createStatement()) {
+            statement.executeUpdate(query);
+            System.out.println("The column added");
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+            System.out.println("The column not added");
+        }
+    }
+
+    public void viewDatabaseData() {
+        try {
+            DatabaseMetaData dbmt = this.connection.getMetaData();
+            System.out.printf(
+                    "Driver name: %s\nDriver version: %s\nUrl: %s\nConnected user: %s\nDBMS: %s\nDBMS version: %s\nDBMS keywords: %s\n",
+                    dbmt.getDriverName(), dbmt.getDriverVersion(), dbmt.getURL(), dbmt.getUserName(),
+                    dbmt.getDatabaseProductName(), dbmt.getDatabaseProductVersion(), dbmt.getSQLKeywords());
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+    }
+
+    public void viewCatalogs() {
+        try {
+            ResultSet catalogs = this.connection.getMetaData().getCatalogs();
+
+            while (catalogs.next()) {
+                System.out.printf("%s\n", catalogs.getString("TABLE_CAT"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+    }
+
+    public void viewDBTables() {
+        try {
+            ResultSet tables = this.connection.getMetaData().getTables(this.database, null, null, null);
+
+            while (tables.next()) {
+                System.out.printf("%-15s%-10s\n", tables.getString("TABLE_NAME"), tables.getString("TABLE_TYPE"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+    }
+
+    public void viewDBViews() {
+        try {
+            ResultSet views = this.connection.getMetaData().getTables(this.database, null, null,
+                    new String[] { "VIEW" });
+
+            while (views.next()) {
+                System.out.printf("%s\n", views.getString("TABLE_NAME"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+    }
+
+    public void viewAllDBTables() {
+        try {
+            DatabaseMetaData dbmt = this.connection.getMetaData();
+            ResultSet catalogs = dbmt.getCatalogs();
+            ResultSet tables;
+            String db;
+
+            while (catalogs.next()) {
+                db = catalogs.getString("TABLE_CAT");
+                System.out.printf("%s:\n", db);
+                tables = dbmt.getTables(db, null, null, null);
+
+                while (tables.next()) {
+                    System.out.printf("%-50s%-10s\n", tables.getString("TABLE_NAME"), tables.getString("TABLE_TYPE"));
+                }
+
+                System.out.println();
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
     }
 }
