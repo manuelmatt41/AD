@@ -28,13 +28,16 @@ public class App {
         // jdbc.updateSubject(sqlSubject);
         // jdbc.viewClassWithStudents();
         // jdbc.viewClassesWithoutStudents();
-        // jdbc.viewStudentName("a", 180);
-        // jdbc.addColum("asignaturas", "algofgdfgg", "varar(50)", "not null default 'espero que salga bien'");
+        // jdbc.viewStudentName("m%", 5);
+        // jdbc.addColum("asignaturas", "algofgdfgg", "varar(50)", "not null default
+        // 'espero que salga bien'");
         // jdbc.viewDatabaseData();
         // jdbc.viewCatalogs();
         // jdbc.viewDBTables();
         // jdbc.viewDBViews();
-        jdbc.viewAllDBTables();
+        // jdbc.viewAllDBTables();
+        // jdbc.viewSavedProcedures();
+        jdbc.viewDBTables("a%");
         jdbc.closeConnection();
 
         // getTime(jdbc, 1);

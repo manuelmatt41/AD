@@ -1,6 +1,7 @@
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -163,11 +164,12 @@ public class JDBC { // TODO Make the functions more generic
     }
 
     public void viewStudentName(String patternName, Integer minHeight) {
-        String query = String.format("SELECT nombre FROM alumnos WHERE nombre LIKE ('%%%s%%') AND altura>%d;",
-                patternName, minHeight);
-
-        try (Statement statement = this.connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(query);
+        String query = "SELECT nombre FROM alumnos WHERE nombre LIKE (?) AND altura>?;";
+        try {
+            PreparedStatement preparedStatement = this.connection.prepareStatement(query);
+            preparedStatement.setString(1, patternName);
+            preparedStatement.setInt(2, minHeight);
+            ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
                 System.out.printf("%s\n", resultSet.getString("nombre"));
@@ -369,6 +371,24 @@ public class JDBC { // TODO Make the functions more generic
         }
     }
 
+    public void viewDBTables(String patternNameTable) {
+        try {
+            ResultSet columns = this.connection.getMetaData().getColumns(this.database, null, patternNameTable, null);
+
+            while (columns.next()) {
+                System.out.printf(
+                        "Column index: %d\nDatabse: %s\nTable: %s\nColumn name: %s\nData type: %s\nColumn size: %d\nIs nullable: %s\n",
+                        columns.getInt("ORDINAL_POSITION"), this.database, columns.getString("TABLE_NAME"),
+                        columns.getString("COLUMN_NAME"), columns.getString("TYPE_NAME"), columns.getInt("COLUMN_SIZE"),
+                        columns.getString("IS_NULLABLE"));
+                System.out.println();
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
     public void viewDBViews() {
         try {
             ResultSet views = this.connection.getMetaData().getTables(this.database, null, null,
@@ -388,7 +408,6 @@ public class JDBC { // TODO Make the functions more generic
             ResultSet catalogs = dbmt.getCatalogs();
             ResultSet tables;
             String db;
-
             while (catalogs.next()) {
                 db = catalogs.getString("TABLE_CAT");
                 System.out.printf("%s:\n", db);
@@ -400,6 +419,27 @@ public class JDBC { // TODO Make the functions more generic
 
                 System.out.println();
             }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+    }
+
+    public void viewSavedProcedures() {
+        try {
+            ResultSet procedures = this.connection.getMetaData().getProcedures(this.database, null, null);
+
+            while (procedures.next()) {
+                System.out.printf("%s\n", procedures.getString("PROCEDURE_NAME"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+    }
+
+    public void viewPrimaryKeys() {
+        try {
+            ResultSet primaryKeys = this.connection.getMetaData().getPrimaryKeys(this.database, null, null);
+            ResultSet exportedKeys = this.connection.getMetaData().getExportedKeys(this.database, null, null);
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
