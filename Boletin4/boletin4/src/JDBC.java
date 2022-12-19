@@ -17,6 +17,16 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
+
 public class JDBC {
     private Connection connection;
     private String database = "add";
@@ -551,7 +561,7 @@ public class JDBC {
 
         try (Statement statement = this.connection.createStatement()) {
             resultSet = statement.executeQuery("SELECT SUMA()");
-            
+
             while (resultSet.next()) {
                 System.out.printf("Puestos totales: %d\n", resultSet.getInt("SUMA()"));
             }
@@ -560,7 +570,106 @@ public class JDBC {
         }
     }
 
-    public void getString(String database, String pattern) {
-        
+    public void getText(String database, String pattern) {
+        DatabaseMetaData databaseMetaData;
+        ResultSet tables;
+        ResultSet columns;
+        ResultSet result;
+        String query;
+
+        try (Statement statement = this.connection.createStatement()) {
+            databaseMetaData = this.connection.getMetaData();
+            tables = databaseMetaData.getTables(database, null, null, null);
+
+            while (tables.next()) {
+                columns = databaseMetaData.getColumns(null, null, tables.getString("TABLE_NAME"), null);
+
+                while (columns.next()) {
+                    if (isColumnTextDataType(columns.getString("TYPE_NAME"))) {
+                        query = String.format("SELECT %s FROM %s WHERE %s LIKE ('%s')",
+                                columns.getString("COLUMN_NAME"), tables.getString("TABLE_NAME"),
+                                columns.getString("COLUMN_NAME"), pattern);
+                        result = statement.executeQuery(query);
+
+                        while (result.next()) {
+                            System.out.printf("Database:%s  Column:%s  Column:%s\n", database,
+                                    tables.getString("TABLE_NAME"),
+                                    columns.getString("COLUMN_NAME"));
+                            System.out.println(result.getString(columns.getString("COLUMN_NAME")));
+                            System.err.println();
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+    }
+
+    public boolean isColumnTextDataType(String columnName) {
+        return columnName.equals("CHAR") || columnName.equals("VARCHAR");
+    }
+
+    public void exportTableToXML(String tableName, String objectNames, File out) {
+        Document doc = createDOMTree();
+        Element root = doc.createElement(tableName);
+        Element row;
+        Element col;
+        ResultSet resultSet;
+        ResultSetMetaData columns;
+        String query = String.format("SELECT * FROM %s", tableName);
+
+        try (Statement statement = this.connection.createStatement()) {
+            resultSet = statement.executeQuery(query);
+            columns = resultSet.getMetaData();
+
+            while (resultSet.next()) {
+                row = doc.createElement(objectNames);
+
+                for (int i = 1; i <= columns.getColumnCount(); i++) {
+                    col = doc.createElement(columns.getColumnName(i));
+                    col.setTextContent(resultSet.getString(columns.getColumnLabel(i)));
+                    row.appendChild(col);
+                }
+                root.appendChild(row);
+            }
+            doc.appendChild(root);
+            saveDOMTree(doc, out.getAbsolutePath());
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public Document createDOMTree() {
+        Document doc = null;
+        try {
+            DocumentBuilderFactory factoria = DocumentBuilderFactory.newInstance();
+            factoria.setIgnoringComments(true);
+            DocumentBuilder builder = factoria.newDocumentBuilder();
+            doc = builder.newDocument();
+        } catch (Exception e) {
+            System.out.println("Error generando el árbol DOM: " + e.getMessage());
+        }
+        return doc;
+    }
+
+    public void saveDOMTree(Document document, String ficheroSalida) {
+        DOMImplementationRegistry registry;
+        try {
+            registry = DOMImplementationRegistry.newInstance();
+            DOMImplementationLS ls = (DOMImplementationLS) registry.getDOMImplementation("XML 3.0 LS 3.0");
+            LSOutput output = ls.createLSOutput();
+            output.setEncoding("UTF-8");
+            output.setByteStream(new FileOutputStream(ficheroSalida));
+            LSSerializer serializer = ls.createLSSerializer();
+            serializer.setNewLine("\r\n");
+            serializer.getDomConfig().setParameter("format-pretty-print", true);
+            serializer.write(document, output);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

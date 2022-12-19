@@ -1,3 +1,5 @@
+import java.io.File;
+
 public class App {
     public static void getTime(JDBC jdbc, int n) {
         jdbc.openConnection();
@@ -43,7 +45,9 @@ public class App {
         // jdbc.viewAvaibleDrivers();
         // jdbc.getImages();
         // jdbc.addImages(new File(System.getProperty("user.home") + "\\aa.jpg"));
-        jdbc.getAulas(1, "a");
+        // jdbc.getAulas(1, "a");
+        // jdbc.getText("add", "%an%");
+        jdbc.exportTableToXML("alumnos", "alumno", new File(System.getProperty("user.home") + "\\aa.xml"));
         jdbc.closeConnection();
 
         // getTime(jdbc, 1);
