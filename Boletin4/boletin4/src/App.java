@@ -37,7 +37,13 @@ public class App {
         // jdbc.viewDBViews();
         // jdbc.viewAllDBTables();
         // jdbc.viewSavedProcedures();
-        jdbc.viewDBTables("a%");
+        // jdbc.viewDBTables("a%");
+        // jdbc.viewPrimaryKeys();
+        // jdbc.viewColumnDatas();
+        // jdbc.viewAvaibleDrivers();
+        // jdbc.getImages();
+        // jdbc.addImages(new File(System.getProperty("user.home") + "\\aa.jpg"));
+        jdbc.getAulas(1, "a");
         jdbc.closeConnection();
 
         // getTime(jdbc, 1);

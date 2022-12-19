@@ -1,13 +1,23 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
-public class JDBC { // TODO Make the functions more generic
+public class JDBC {
     private Connection connection;
     private String database = "add";
     private String server = "localhost";
@@ -440,8 +450,117 @@ public class JDBC { // TODO Make the functions more generic
         try {
             ResultSet primaryKeys = this.connection.getMetaData().getPrimaryKeys(this.database, null, null);
             ResultSet exportedKeys = this.connection.getMetaData().getExportedKeys(this.database, null, null);
+
+            while (primaryKeys.next()) {
+                System.out.printf("%s: %s (%s)\n", primaryKeys.getString("PK_NAME"),
+                        primaryKeys.getString("COLUMN_NAME"), primaryKeys.getString("TABLE_NAME"));
+            }
+
+            while (exportedKeys.next()) {
+                System.out.printf("%s: %s (%s)\n", exportedKeys.getString("FK_NAME"),
+                        exportedKeys.getString("FKCOLUMN_NAME"), exportedKeys.getString("PKTABLE_NAME"));
+            }
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }
+    }
+
+    public void viewColumnDatas() {
+        String query = "SELECT *, nombre AS non FROM alumnos";
+
+        try (Statement statement = this.connection.createStatement()) {
+            ResultSetMetaData resultSetMetaData = statement.executeQuery(query).getMetaData();
+
+            for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
+                System.out.printf("%-20s%-20s%-20s%-8b%-8b\n", resultSetMetaData.getColumnName(i),
+                        resultSetMetaData.getColumnLabel(i), resultSetMetaData.getColumnTypeName(i),
+                        resultSetMetaData.isAutoIncrement(i), resultSetMetaData.isNullable(i));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+    }
+
+    public void viewAvaibleDrivers() {
+        Enumeration<Driver> drivers = DriverManager.getDrivers();
+
+        while (drivers.hasMoreElements()) {
+            System.out.println(drivers.nextElement().getClass());
+        }
+    }
+
+    public void getImages() {
+        String query = "SELECT * from imagenes;";
+
+        try (Statement statement = this.connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                saveImages(resultSet.getBinaryStream("imagen"),
+                        new File(System.getProperty("user.home") + "\\" + resultSet.getString("nombre")));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+    }
+
+    public void addImages(File in) {
+        String query = "INSERT INTO imagenes (nombre, imagen) VALUES (?, ?)";
+
+        try {
+            PreparedStatement preparedStatement = this.connection.prepareStatement(query);
+            FileInputStream fis = new FileInputStream(in);
+            preparedStatement.setString(1, in.getName());
+            preparedStatement.setBinaryStream(2, fis, fis.available());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getErrorCode());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveImages(InputStream imageStream, File out) {
+        try (InputStream is = imageStream) {
+            try (FileOutputStream fos = new FileOutputStream(out)) {
+                fos.write(is.readAllBytes());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getAulas(int minPuestos, String patterName) {
+        ResultSet resultSet;
+        try (CallableStatement cs = this.connection.prepareCall("CALL getAulas(?, ?)")) {
+            cs.setInt(1, minPuestos);
+            cs.setString(2, patterName);
+            resultSet = cs.executeQuery();
+
+            while (resultSet.next()) {
+                System.out.printf("%-4d%-20s%-5d\n", resultSet.getInt("numero"), resultSet.getString("nombreaula"),
+                        resultSet.getInt("puestos"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+
+        try (Statement statement = this.connection.createStatement()) {
+            resultSet = statement.executeQuery("SELECT SUMA()");
+            
+            while (resultSet.next()) {
+                System.out.printf("Puestos totales: %d\n", resultSet.getInt("SUMA()"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error in: " + e.getLocalizedMessage());
+        }
+    }
+
+    public void getString(String database, String pattern) {
+        
     }
 }
