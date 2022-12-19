@@ -210,7 +210,8 @@ public class JDBC {
                 student.getName(), student.getSurname(), student.getHeight(), student.getClassId());
 
         try (Statement statement = this.connection.createStatement()) {
-            System.out.printf("%s", statement.executeUpdate(query) != 0 ? "Student added" : "Student not added");
+            statement.executeUpdate(query);
+            // System.out.printf("%s", statement.executeUpdate(query) != 0 ? "Student added" : "Student not added");
         } catch (SQLException e) {
             System.out.println("Error in: " + e.getLocalizedMessage());
         }

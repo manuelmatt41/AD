@@ -5,7 +5,7 @@ public class App {
         jdbc.openConnection();
         long initTime = System.currentTimeMillis();
         for (int i = 0; i < n; i++) {
-            jdbc.viewApprovedStudentSubjects();
+            jdbc.exportTableToXML("alumnos", "alumno", new File(System.getProperty("user.home") + "\\aa.xml"));;
         }
         long finalTime = System.currentTimeMillis();
         System.out.println((finalTime - initTime) + " miliseconds");
@@ -47,10 +47,10 @@ public class App {
         // jdbc.addImages(new File(System.getProperty("user.home") + "\\aa.jpg"));
         // jdbc.getAulas(1, "a");
         // jdbc.getText("add", "%an%");
-        jdbc.exportTableToXML("alumnos", "alumno", new File(System.getProperty("user.home") + "\\aa.xml"));
+        // jdbc.exportTableToXML("alumnos", "alumno", new File(System.getProperty("user.home") + "\\aa.xml"));
         jdbc.closeConnection();
 
-        // getTime(jdbc, 1);
+        getTime(jdbc, 1);
         // getTime(jdbc, 10);
         // getTime(jdbc, 100);
         // getTime(jdbc, 1000);
